@@ -10,8 +10,8 @@ import java.sql.Statement;
 public class ListenOnTriggers {
   public static void main(String[] args) throws SQLException, ClassNotFoundException, InterruptedException {
 
+    CliUtil.setPropertiesFromArgs(DataSourceFactory.ARG_NAMES, args);
     final String channelName = "db_notifications";
-
     final PGDataSource dataSource = DataSourceFactory.create();
 
     PGNotificationListener listener = new PGNotificationListener() {

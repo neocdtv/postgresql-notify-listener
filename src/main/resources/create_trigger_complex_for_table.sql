@@ -1,0 +1,3 @@
+CREATE TRIGGER %s_trigger
+  AFTER INSERT OR UPDATE OR DELETE ON %s
+  FOR EACH ROW EXECUTE PROCEDURE notify_trigger_complex(%s);

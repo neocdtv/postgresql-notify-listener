@@ -2,6 +2,10 @@ package io.neocdtv;
 
 import com.impossibl.postgres.jdbc.PGDataSource;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -13,31 +17,32 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class GenerateTriggers {
-
-  private static final String CREATE_SIMPLE_TRIGGER_TEMPLATE =
-      "create trigger %s_trigger \n" +
-          "    AFTER INSERT OR UPDATE OR DELETE on %s\n" +
-          "    FOR EACH ROW EXECUTE PROCEDURE notify_change();";
-  private static final String CREATE_COMPLEX_TRIGGER_TEMPLATE =
-      "create trigger %s_trigger" +
-          "    AFTER INSERT OR UPDATE OR DELETE ON %s\n" +
-          "    FOR EACH ROW EXECUTE PROCEDURE notify_trigger(%s);";
   private static final String DROP_TRIGGER_TEMPLATE = "drop trigger %s_trigger on %s;";
 
-  public static void main(String[] args) throws SQLException {
-    final PGDataSource dataSource = DataSourceFactory.create();
+  public static void main(String[] args) throws SQLException, IOException {
 
+    CliUtil.setPropertiesFromArgs(DataSourceFactory.ARG_NAMES, args);
+
+    final PGDataSource dataSource = DataSourceFactory.create();
     final Connection connection = dataSource.getConnection();
     DatabaseMetaData metaData = connection.getMetaData();
+
+    createOrReplaceNotifyTrigger(connection);
     try (ResultSet tables = metaData.getTables(null, null, "t_%", new String[]{"TABLE"})) {
       while (tables.next()) {
         final String table_name = tables.getString("TABLE_NAME");
         System.out.println("working on table: " + table_name);
         final String columnsForTable = getColumnsForTable(connection, table_name);
         dropTrigger(connection, table_name);
-        createComplexTrigger(connection, table_name, columnsForTable);
+        createTriggerComplex(connection, table_name, columnsForTable);
       }
     }
+  }
+
+  private static void createOrReplaceNotifyTrigger(final Connection connection) throws IOException {
+    System.out.println("creating notify trigger complex");
+    final String sql = loadFile("notify_trigger_complex.sql");
+    executeUpdate(connection, sql.toString());
   }
 
   public static void dropTrigger(final Connection connection, final String tableName) {
@@ -46,16 +51,21 @@ public class GenerateTriggers {
     executeUpdate(connection, dropTriggerSql);
   }
 
-  public static void createSimpleTrigger(final Connection connection, final String tableName) {
-    System.out.println("creating simple trigger for table: " + tableName);
-    final String createTriggerSql = String.format(CREATE_SIMPLE_TRIGGER_TEMPLATE, tableName, tableName);
+  public static void createTriggerComplex(final Connection connection, final String tableName, String columnsForTable) throws IOException {
+    System.out.println("creating trigger complex for table: " + tableName);
+    final String sql = loadFile("create_trigger_complex_for_table.sql");
+    final String createTriggerSql = String.format(sql, tableName, tableName, columnsForTable);
     executeUpdate(connection, createTriggerSql);
   }
 
-  public static void createComplexTrigger(final Connection connection, final String tableName, String columnsForTable) {
-    System.out.println("creating complex trigger for table: " + tableName);
-    final String createTriggerSql = String.format(CREATE_COMPLEX_TRIGGER_TEMPLATE, tableName, tableName, columnsForTable);
-    executeUpdate(connection, createTriggerSql);
+  private static String loadFile(final String notifyTriggerComplexFileName) throws IOException {
+    final URL resource = Thread.currentThread().getContextClassLoader().getResource(notifyTriggerComplexFileName);
+    final StringBuffer lines = new StringBuffer();
+    for (String line : Files.readAllLines(new File(resource.getPath()).toPath())) {
+      lines.append(line);
+      lines.append("\n");
+    }
+    return lines.toString();
   }
 
   public static String getColumnsForTable(final Connection connection, final String tableName) throws SQLException {

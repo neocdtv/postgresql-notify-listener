@@ -1,6 +1,7 @@
-CREATE OR REPLACE FUNCTION notify_trigger() RETURNS trigger AS $trigger$
+CREATE OR REPLACE FUNCTION notify_trigger_complex() RETURNS trigger AS $trigger$
 DECLARE
   rec RECORD;
+  transaction_id TEXT;
   payload TEXT;
   column_name TEXT;
   column_value TEXT;
@@ -16,6 +17,8 @@ BEGIN
      RAISE EXCEPTION 'Unknown TG_OP: "%". Should not occur!', TG_OP;
   END CASE;
 
+  SELECT CAST(txid_current() AS text) INTO transaction_id;
+
   -- Get required fields
   FOREACH column_name IN ARRAY TG_ARGV LOOP
     EXECUTE format('SELECT $1.%I::TEXT', column_name)
@@ -26,6 +29,7 @@ BEGIN
 
   -- Build the payload
   payload := json_build_object(
+    'transaction_id', transaction_id,
     'timestamp',CURRENT_TIMESTAMP,
     'operation',TG_OP,
     'schema',TG_TABLE_SCHEMA,
