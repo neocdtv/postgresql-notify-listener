@@ -28,7 +28,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>io.neocdtv.ListenOnTriggers</mainClass>
+                  <mainClass>io.neocdtv.AppSelector</mainClass>
                 </transformer>
               </transformers>
             </configuration>

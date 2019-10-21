@@ -2,10 +2,10 @@ package io.neocdtv;
 
 import com.impossibl.postgres.jdbc.PGDataSource;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -16,19 +16,25 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class GenerateTriggers {
+public class Generate implements App {
+  public static final String TABLE_NAME_PATTERN = "pattern";
   private static final String DROP_TRIGGER_TEMPLATE = "drop trigger %s_trigger on %s;";
 
-  public static void main(String[] args) throws SQLException, IOException {
+  public void exec(String[] args) throws Throwable {
+    final String host = CliUtil.findCommandArgumentByName(DataSourceFactory.HOST, args);
+    final int port = Integer.valueOf(CliUtil.findCommandArgumentByName(DataSourceFactory.PORT, args));
+    final String database = CliUtil.findCommandArgumentByName(DataSourceFactory.DATABASE, args);
+    final String user = CliUtil.findCommandArgumentByName(DataSourceFactory.USER, args);
+    final String password = CliUtil.findCommandArgumentByName(DataSourceFactory.PASSWORD, args);
+    final String tableNamePattern = CliUtil.findCommandArgumentByName(TABLE_NAME_PATTERN, args);
 
-    CliUtil.setPropertiesFromArgs(DataSourceFactory.ARG_NAMES, args);
 
-    final PGDataSource dataSource = DataSourceFactory.create();
+    final PGDataSource dataSource = DataSourceFactory.create(host, port, database, user, password);
     final Connection connection = dataSource.getConnection();
     DatabaseMetaData metaData = connection.getMetaData();
 
     createOrReplaceNotifyTrigger(connection);
-    try (ResultSet tables = metaData.getTables(null, null, "t_%", new String[]{"TABLE"})) {
+    try (ResultSet tables = metaData.getTables(null, null, tableNamePattern, new String[]{"TABLE"})) {
       while (tables.next()) {
         final String table_name = tables.getString("TABLE_NAME");
         System.out.println("working on table: " + table_name);
@@ -59,12 +65,13 @@ public class GenerateTriggers {
   }
 
   private static String loadFile(final String notifyTriggerComplexFileName) throws IOException {
-    final URL resource = Thread.currentThread().getContextClassLoader().getResource(notifyTriggerComplexFileName);
+    final InputStream resource = Thread.currentThread().getContextClassLoader().getResourceAsStream(notifyTriggerComplexFileName);
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(resource));
     final StringBuffer lines = new StringBuffer();
-    for (String line : Files.readAllLines(new File(resource.getPath()).toPath())) {
+    reader.lines().forEach(line -> {
       lines.append(line);
       lines.append("\n");
-    }
+    });
     return lines.toString();
   }
 

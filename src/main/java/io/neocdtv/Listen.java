@@ -7,12 +7,17 @@ import com.impossibl.postgres.jdbc.PGDataSource;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class ListenOnTriggers {
-  public static void main(String[] args) throws SQLException, ClassNotFoundException, InterruptedException {
+public class Listen implements App {
+  public void exec(String[] args) throws SQLException, ClassNotFoundException, InterruptedException {
 
-    CliUtil.setPropertiesFromArgs(DataSourceFactory.ARG_NAMES, args);
     final String channelName = "db_notifications";
-    final PGDataSource dataSource = DataSourceFactory.create();
+
+    final String host = CliUtil.findCommandArgumentByName(DataSourceFactory.HOST, args);
+    final int port = Integer.valueOf(CliUtil.findCommandArgumentByName(DataSourceFactory.PORT, args));
+    final String database = CliUtil.findCommandArgumentByName(DataSourceFactory.DATABASE, args);
+    final String user = CliUtil.findCommandArgumentByName(DataSourceFactory.USER, args);
+    final String password = CliUtil.findCommandArgumentByName(DataSourceFactory.PASSWORD, args);
+    final PGDataSource dataSource = DataSourceFactory.create(host, port, database, user, password);
 
     PGNotificationListener listener = new PGNotificationListener() {
       @Override

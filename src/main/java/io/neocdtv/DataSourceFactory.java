@@ -7,11 +7,11 @@ import java.util.TreeSet;
 
 public class DataSourceFactory {
 
-  private static final String HOST = "host";
-  private static final String PORT = "port";
-  private static final String DATABASE = "database";
-  private static final String USER = "user";
-  private static final String PASSWORD = "password";
+  static final String HOST = "host";
+  static final String PORT = "port";
+  static final String DATABASE = "database";
+  static final String USER = "user";
+  static final String PASSWORD = "password";
   static Set<String> ARG_NAMES = new TreeSet<>();
 
   static {
@@ -22,6 +22,18 @@ public class DataSourceFactory {
     ARG_NAMES.add(PASSWORD);
   }
 
+  public static PGDataSource create(final String host, final int port, final String database, final String user, final String password) {
+    PGDataSource dataSource = new PGDataSource();
+    dataSource.setHost(host);
+    dataSource.setPort(port);
+    dataSource.setDatabaseName(database);
+    dataSource.setUser(user);
+    dataSource.setPassword(password);
+    dataSource.setSqlTrace(true);
+    return dataSource;
+  }
+
+  @Deprecated
   public static PGDataSource create() {
     PGDataSource dataSource = new PGDataSource();
     dataSource.setHost(getHost());
