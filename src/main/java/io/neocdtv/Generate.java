@@ -37,7 +37,6 @@ public class Generate implements App {
     try (ResultSet tables = metaData.getTables(null, null, tableNamePattern, new String[]{"TABLE"})) {
       while (tables.next()) {
         final String table_name = tables.getString("TABLE_NAME");
-        System.out.println("working on table: " + table_name);
         final String columnsForTable = getColumnsForTable(connection, table_name);
         dropTrigger(connection, table_name);
         createTriggerComplex(connection, table_name, columnsForTable);
@@ -46,22 +45,37 @@ public class Generate implements App {
   }
 
   private static void createOrReplaceNotifyTrigger(final Connection connection) throws IOException {
-    System.out.println("creating notify trigger complex");
-    final String sql = loadFile("notify_trigger_complex.sql");
-    executeUpdate(connection, sql.toString());
+    System.out.printf("Creating notify trigger function...");
+    try {
+      final String sql = loadFile("notify_trigger_complex.sql");
+      executeUpdate(connection, sql.toString());
+      System.out.println("OK");
+    } catch (Throwable e) {
+      System.out.println("FAIL");
+    }
   }
 
   public static void dropTrigger(final Connection connection, final String tableName) {
-    System.out.println("dropping trigger for table: " + tableName);
-    final String dropTriggerSql = String.format(DROP_TRIGGER_TEMPLATE, tableName, tableName);
-    executeUpdate(connection, dropTriggerSql);
+    System.out.printf("Dropping trigger for table: " + tableName + "...");
+    try {
+      final String sql = String.format(DROP_TRIGGER_TEMPLATE, tableName, tableName);
+      executeUpdate(connection, sql.toString());
+      System.out.println("OK");
+    } catch (Throwable e) {
+      System.out.println("FAIL");
+    }
   }
 
-  public static void createTriggerComplex(final Connection connection, final String tableName, String columnsForTable) throws IOException {
-    System.out.println("creating trigger complex for table: " + tableName);
-    final String sql = loadFile("create_trigger_complex_for_table.sql");
-    final String createTriggerSql = String.format(sql, tableName, tableName, columnsForTable);
-    executeUpdate(connection, createTriggerSql);
+  public static void createTriggerComplex(final Connection connection, final String tableName, String columnsForTable) {
+    System.out.printf("Creating trigger for table: " + tableName + "...");
+    try {
+      final String sqlTemplate = loadFile("create_trigger_complex_for_table.sql");
+      final String sql = String.format(sqlTemplate, tableName, tableName, columnsForTable);
+      executeUpdate(connection, sql);
+      System.out.println("OK");
+    } catch (Throwable e) {
+      System.out.println("FAIL");
+    }
   }
 
   private static String loadFile(final String notifyTriggerComplexFileName) throws IOException {
@@ -106,12 +120,8 @@ public class Generate implements App {
     return stringBuffer.toString();
   }
 
-  private static void executeUpdate(final Connection connection, final String sql) {
-    try {
+  private static void executeUpdate(final Connection connection, final String sql) throws SQLException {
       Statement statement = connection.createStatement();
       statement.executeUpdate(sql);
-    } catch (Throwable e) {
-      System.err.println(e.getMessage());
-    }
   }
 }

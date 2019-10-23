@@ -29,7 +29,7 @@ public class DataSourceFactory {
     dataSource.setDatabaseName(database);
     dataSource.setUser(user);
     dataSource.setPassword(password);
-    dataSource.setSqlTrace(true);
+    //dataSource.setSqlTrace(true);
     return dataSource;
   }
 
@@ -41,7 +41,7 @@ public class DataSourceFactory {
     dataSource.setDatabaseName(getDatabase());
     dataSource.setUser(getUser());
     dataSource.setPassword(getPassword());
-    dataSource.setSqlTrace(true);
+    //dataSource.setSqlTrace(true);
     return dataSource;
   }
 

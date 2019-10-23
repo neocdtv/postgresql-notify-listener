@@ -22,20 +22,24 @@ public class Listen implements App {
     PGNotificationListener listener = new PGNotificationListener() {
       @Override
       public void notification(int processId, String channelName, String payload) {
-        System.out.println(String.format("processId: %d, channelName: %s, notification: %s", processId, channelName, payload));
+        System.out.println(String.format("======== Database event received over channel %s and processId %d ======== ", channelName, processId));
+        System.out.println(String.format(payload));
       }
     };
 
     try (PGConnection connection = (PGConnection) dataSource.getConnection()) {
+      System.out.printf("Starting to listen on database events...");
       Statement statement = connection.createStatement();
       statement.execute(String.format("LISTEN %s", channelName));
       statement.close();
       connection.addNotificationListener(listener);
+      System.out.println("OK");
       while(true) {
         Thread.sleep(10);
       }
-    } catch (Exception e) {
-      System.err.println(e);
+    } catch (Throwable e) {
+      System.out.println("FAIL");
+      throw e;
     }
   }
 }
