@@ -51,7 +51,7 @@ public class Generate implements App {
       executeUpdate(connection, sql.toString());
       System.out.println("OK");
     } catch (Throwable e) {
-      System.out.println("FAIL");
+      System.out.println(String.format("FAIL (%s)", e.getMessage()));
     }
   }
 
@@ -62,7 +62,7 @@ public class Generate implements App {
       executeUpdate(connection, sql.toString());
       System.out.println("OK");
     } catch (Throwable e) {
-      System.out.println("FAIL");
+      System.out.println(String.format("FAIL (%s)", e.getMessage()));
     }
   }
 
@@ -74,7 +74,7 @@ public class Generate implements App {
       executeUpdate(connection, sql);
       System.out.println("OK");
     } catch (Throwable e) {
-      System.out.println("FAIL");
+      System.out.println(String.format("FAIL (%s)", e.getMessage()));
     }
   }
 
