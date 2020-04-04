@@ -5,8 +5,8 @@ pipeline {
         maven 'Maven 3.6.3' 
     }
     
-    parameters { string(name: 'DEPLOY_ENV', defaultValue: 'staging', description: '') }
-
+    parameters { choice(name: 'CHOICES', choices: ['one', 'two', 'three'], description: '') }
+    
     stages {
         stage('Build') {
             steps {
