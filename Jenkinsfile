@@ -14,9 +14,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                script {
-                    sh "mvn clean install"                    
-                }
+                whateverFunction()
+                sh "mvn clean install"                   
             }
         }
         stage('Test') {
@@ -30,4 +29,8 @@ pipeline {
             }
         }
     }
+}
+
+void whateverFunction() {
+    sh 'ls /'
 }
