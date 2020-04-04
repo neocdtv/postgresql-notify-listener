@@ -5,13 +5,18 @@ pipeline {
         maven 'Maven 3.6.3' 
     }
     
+    def paramList() {
+        return "bla";
+    }
+    
     parameters { choice(name: 'CHOICES', choices: ['one', 'two', 'three'], description: '') }
     
     stages {
         stage('Build') {
             steps {
-                sh "java -version"
-                sh "mvn clean install"
+                script {
+                    sh "mvn clean install"                    
+                }
             }
         }
         stage('Test') {
