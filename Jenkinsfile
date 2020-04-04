@@ -4,6 +4,8 @@ pipeline {
     tools { 
         maven 'Maven 3.6.3' 
     }
+    
+    parameters { string(name: 'DEPLOY_ENV', defaultValue: 'staging', description: '') }
 
     stages {
         stage('Build') {
