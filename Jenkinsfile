@@ -2,7 +2,7 @@ pipeline {
     agent any
     
     tools { 
-        maven 'Maven 3.6.3' 
+        maven 'maven-3.6.3' 
     }
     
     parameters { choice(name: 'CHOICES', choices: ['one', 'two', 'three'], description: '') }
