@@ -8,11 +8,18 @@ pipeline {
     parameters {
 	string(name: 'VERSION', defaultValue: '', description: '')
     }
+	
+    environment {
+	FIRST="one";
+	SECOND="second";
+	TEST_VERSION="$ESCAPED_BRANCH_NAME_$TIMESTAMP"
+    }
     
     stages {
         stage('Build') {
             steps {
                 script {
+		    println(env.TEST_VERSION);
                     if (!params.VERSION.startsWith("release")) {
 			error("Only release branches can be deployed to production!")
 		    }
