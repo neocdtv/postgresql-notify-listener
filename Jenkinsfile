@@ -4,13 +4,14 @@ pipeline {
     tools { 
         maven 'maven-3.6.3' 
     }
+	
+    parameters {
+	string(name: 'VERSION', defaultValue: '', description: '')
+    }
     
     stages {
         stage('Build') {
             steps {
-		parameters {
-	 		string(name: 'VERSION', defaultValue: '', description: '')
-	    	}
                 script {
                     if (!params.VERSION.startsWith("release")) {
 			error("Only release branches can be deployed to production!")
