@@ -5,12 +5,11 @@ pipeline {
         maven 'maven-3.6.3' 
     }
     
-    parameters {
-	 string(name: 'VERSION', defaultValue: '', description: '')
-	}
-    
     stages {
         stage('Build') {
+	    parameters {
+	 	string(name: 'VERSION', defaultValue: '', description: '')
+	    }
             steps {
                 script {
                     if (!params.VERSION.startsWith("release")) {
