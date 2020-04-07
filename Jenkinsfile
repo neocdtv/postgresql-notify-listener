@@ -35,7 +35,7 @@ boolean isValidVersion(version) {
 
 String getBranch(version) {
     escapedBranch = version.split("_")[0];
-    branch = escapedBranch.replaceAll("-", "/");
+    branch = escapedBranch.replace("-", "/");
     return branch; 
 }
 
