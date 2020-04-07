@@ -7,10 +7,10 @@ pipeline {
     
     stages {
         stage('Build') {
-	    parameters {
-	 	string(name: 'VERSION', defaultValue: '', description: '')
-	    }
             steps {
+		parameters {
+	 		string(name: 'VERSION', defaultValue: '', description: '')
+	    	}
                 script {
                     if (!params.VERSION.startsWith("release")) {
 			error("Only release branches can be deployed to production!")
