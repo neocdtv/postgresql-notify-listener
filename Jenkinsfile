@@ -12,7 +12,7 @@ pipeline {
     environment {
 	FIRST="one";
 	SECOND="second";
-	TEST_VERSION="$ESCAPED_BRANCH_NAME_$TIMESTAMP"
+	TEST_VERSION="$FIRST_$SECOND"
     }
     
     stages {
