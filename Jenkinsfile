@@ -12,7 +12,7 @@ pipeline {
     environment {
 	FIRST="one";
 	SECOND="second";
-	TEST_VERSION="$FIRST_$SECOND"
+	TEST_VERSION="$FIRST" + "_" + "$SECOND"
     }
     
     stages {
