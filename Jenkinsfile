@@ -13,7 +13,9 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    println(env.BRANCH_NAME);
+                    if (!params.VERSION.startsWith("release")) {
+			error("Only release branches can be deployed to production!")
+		    }
                     if (isValidVersion(params.VERSION)) {
                         branch = getBranch(params.VERSION);
                         tag = params.VERSION;
